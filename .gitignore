@@ -1,0 +1,8 @@
+*.swp
+obj-x86_64-linux-gnu/
+cyber-authorized-keys.1
+cyber.1
+cyberd.1
+cmd/cyber-authorized-keys/README.1*
+cmd/cyber/README.1*
+cmd/cyberd/README.1*

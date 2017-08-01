@@ -1,0 +1,112 @@
+/* CYBERCOM protobuf defs for core and shared types. This contains a way to
+ * pass around what amounts to typed byte arrays. Nothing fancy or new
+ * here, and it's really on the caller to use the encoded DER to do things
+ * like pull out Subject, or validate self-signatures. */
+
+syntax = "proto3";
+package cybercom;
+option go_package = "pb";
+
+import "primitives.proto";
+
+message Empty {}
+
+message Id {
+    bytes id = 1;
+}
+
+message Serial {
+    bytes serial = 1;
+}
+
+message Entity {
+    Id id = 1;
+
+    enum State {
+        UNKNOWN = 0;
+        PENDING = 1;
+        APPROVED = 2;
+        REJECTED = 3;
+        REVOKED = 4;
+        ONEOFF = 5;
+    };
+
+    State state = 2;
+    CSR csr = 3;
+    string email = 4;
+    string longevity = 5;
+    uint64 expires = 6;
+}
+
+message Configuration {
+    // something like "Paul's Home CA" or "StrexCorp Synernists, Inc."
+    string name = 1;
+
+    message RequestTemplate {
+        string country = 1;
+        string organization = 2;
+        string organizational_unit = 3;
+        string locality = 4;
+        string province = 5;
+    };
+
+    // Default template to use for clients that don't know any better
+    // than this. It's assumed a user is a part of the CYBERCOM server that
+    // belongs (or holds a role) to an organization. As such, we can inheret
+    // their configuration.
+    RequestTemplate request_template = 2;
+
+    // the set of CAs we should know about. Natch, we already need the CA
+    // this server was signed with in order to get his pool, but this could
+    // be great for getting the full set of operational CAs we know about.
+    repeated Certificate ca = 3;
+
+    // Get the client's certificate back if provided
+    Certificate peer = 4;
+
+    // Get the client's entiy entry if provided
+    Entity entity = 5;
+}
+
+service Cybercom {
+    // Get a Cybercom configuration
+    rpc GetConfiguration(Empty) returns (Configuration) {}
+
+    // Submimt a CSR for processing later, returning the Entity ID
+    // that the management layer will use as well.
+    rpc Register(CSR) returns (Entity) {}
+
+    // Get an entity and their information based on their Entity ID
+    rpc GetEntity(Id) returns (Entity) {}
+
+    // Given an Entity ID, return a stream of Certificates which have
+    // been issued to that client.
+    rpc GetCertificates(Id) returns (stream Certificate) {}
+
+    // Given an Entity ID, return the current Certificate for the
+    // user.
+    rpc GetCertificate(Id) returns (Certificate) {}
+
+    // Given a Serial, return the Certifciate that was issued
+    rpc GetCertificateBySerial(Serial) returns (Certificate) {}
+
+    // Get the Entity for the given Certificate by its Serial
+    rpc GetEntityBySerial(Serial) returns (Entity) {}
+
+    // Get a new Certificate for the client on the other end of the TLS
+    // connection. If a Certificate is valid, and the Entity is valid, this
+    // will trigger a new Certificate to be issued.
+    rpc Renew(Empty) returns (Certificate) {}
+
+    // Get all entities known to the system.
+    rpc GetEntities(Empty) returns (stream Entity) {}
+
+    // Issue Certificate for an Entity.
+    rpc IssueCertificate(Id) returns (Certificate) {}
+
+    rpc SetEntityState(Entity) returns (Entity) {}
+
+    rpc SetEntityLongevity(Entity) returns (Entity) {}
+
+    rpc SetEntityExpiry(Entity) returns (Entity) {}
+}

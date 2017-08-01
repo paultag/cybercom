@@ -1,0 +1,16 @@
+/* CYBERCOM protobuf defs for core and shared types. This contains a way to
+ * pass around what amounts to typed byte arrays. Nothing fancy or new
+ * here, and it's really on the caller to use the encoded DER to do things
+ * like pull out Subject, or validate self-signatures. */
+
+syntax = "proto3";
+package cybercom;
+option go_package = "pb";
+
+message CSR {
+    bytes der = 1;
+}
+
+message Certificate {
+    bytes der = 1;
+}

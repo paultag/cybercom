@@ -1,0 +1,52 @@
+Source: golang-pault-go-cybercom
+Section: devel
+Priority: extra
+Maintainer: Paul Tagliamonte <paultag@gmail.com>
+Build-Depends: debhelper (>= 10), dh-golang, golang-go,
+ golang-golang-x-net-dev,
+ golang-goprotobuf-dev,
+ golang-google-grpc-dev,
+ golang-github-jinzhu-gorm-dev (>= 1.0~),
+ golang-github-chzyer-readline-dev,
+ golang-github-dustin-go-humanize-dev,
+ golang-github-urfave-cli-dev,
+ golang-golang-x-crypto-dev,
+ golang-pault-go-gecos-dev,
+ golang-pault-go-technicolor-dev,
+ golang-pault-go-ykpiv-dev,
+ golang-github-miekg-pkcs11-dev,
+ libykpiv-dev,
+ ruby-ronn,
+Standards-Version: 4.0.0
+Homepage: https://github.com/paultag/cybercom
+XS-Go-Import-Path: pault.ag/go/cybercom
+
+Package: cyber
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libykpiv1,
+Description: client to the CYBERCOM x509 CA Server
+ cyber is the standard CYBERCOM implementation, feature complete for
+ small to moderately sized deployments. This command can read and write
+ x509 Certificates onto the Filesystem or a Yubikey, as well as preform
+ management functions, such as Certificate issuance, revocation and
+ new entity approval.
+
+Package: cyberd
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: certificate authority for x509 Certificates
+ cyberd is the standard CYBERCOM server implementation, feature complete for
+ small to moderately sized deployments. This can issue Certificates, respond to
+ CYBERCOM requests over grpc, as well as write certificate revocation lists.
+
+Package: cyber-authorized-keys
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libykpiv1,
+Description: ssh authorized-keys command
+ cyber-authorized-keys will query the CYBERCOM server for users that fit the
+ local critiera, and output the ssh authorized keys list for that user.

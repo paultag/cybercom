@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=golang --with=golang
+
+override_dh_auto_build:
+	dh_auto_build
+	ronn cmd/cyber/README.md cmd/cyberd/README.md cmd/cyber-authorized-keys/README.md
+	rm -f cmd/cyber/README.1.html \
+		cmd/cyberd/README.1.html \
+		cmd/cyber-authorized-keys/README.1.html
+	mv cmd/cyber/README.1 cyber.1
+	mv cmd/cyberd/README.1 cyberd.1
+	mv cmd/cyber-authorized-keys/README.1 cyber-authorized-keys.1
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f cyber.1 cyberd.1 cyber-authorized-keys.1
