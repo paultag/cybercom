@@ -60,7 +60,8 @@ func getRSAKey(path string) (*rsa.PrivateKey, error) {
 		if err != nil {
 			return nil, err
 		}
-		return x509.ParsePKCS1PrivateKey(privateKeyBytes)
+		block, _ := pem.Decode(privateKeyBytes)
+		return x509.ParsePKCS1PrivateKey(block.Bytes)
 	}
 	/* Right, what shit went down here */
 	if !os.IsNotExist(err) {
@@ -82,7 +83,11 @@ func getRSAKey(path string) (*rsa.PrivateKey, error) {
 		return nil, err
 	}
 	defer fd.Close()
-	_, err = fd.Write(bytes)
+
+	err = pem.Encode(fd, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: bytes})
+	if err != nil {
+		return nil, err
+	}
 
 	/* Just to make sure it worked, let's recurse. I wonder if we'll ever
 	 * loop forever because we never sync the call or something. */
