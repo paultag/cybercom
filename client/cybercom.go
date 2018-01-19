@@ -50,7 +50,7 @@ import (
 // This returns a tripple of a `Client`, a function to close the open
 // connection (usually by `defer`ing the call, if err is nil), and
 // any errors we hit during the bringup of the client.
-func New(server string, cyberStore store.Store) (*Client, func() error, error) {
+func New(server string, cyberStore store.Store, insecure bool) (*Client, func() error, error) {
 	certs := []tls.Certificate{}
 
 	if cyberStore != nil {
@@ -66,7 +66,10 @@ func New(server string, cyberStore store.Store) (*Client, func() error, error) {
 		}
 	}
 
-	ta := credentials.NewTLS(&tls.Config{Certificates: certs})
+	ta := credentials.NewTLS(&tls.Config{
+        Certificates: certs,
+        InsecureSkipVerify: insecure,
+    })
 
 	conn, err := grpc.Dial(server, grpc.WithTransportCredentials(ta))
 	if err != nil {
