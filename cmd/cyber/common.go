@@ -224,7 +224,7 @@ func NewStore(c *cli.Context) (store.Store, error) {
 }
 
 func NewClient(c *cli.Context, store store.Store) (*client.Client, func() error, error) {
-	return client.New(c.GlobalString("server"), store)
+	return client.New(c.GlobalString("server"), store, c.GlobalBool("insecure"))
 }
 
 func Wrapper(cmd func(*cli.Context) error) func(*cli.Context) error {

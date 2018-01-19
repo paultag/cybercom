@@ -42,6 +42,12 @@ func main() {
 			EnvVar: "CYBERCOM_SERVER",
 		},
 
+		cli.BoolFlag{
+			Name:   "insecure",
+			Usage:  "Ignore TLS verification",
+			EnvVar: "CYBERCOM_INSECURE",
+		},
+
 		cli.StringFlag{
 			Name:   "store",
 			Usage:  "Backend store to use",

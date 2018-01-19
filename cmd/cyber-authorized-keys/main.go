@@ -69,7 +69,7 @@ func main() {
 			return err
 		}
 
-		client, closer, err := client.New(c.GlobalString("server"), nil)
+		client, closer, err := client.New(c.GlobalString("server"), nil, false)
 		if err != nil {
 			return err
 		}
