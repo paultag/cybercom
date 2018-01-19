@@ -38,6 +38,7 @@ import (
 	"github.com/urfave/cli"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
