@@ -249,7 +249,7 @@ func Serve(c *cli.Context, config Config) error {
 
 	cyberServer, err := server.New(
 		server.Options{
-			Name:           "Paul's LAN CA",
+			Name:           config.Name,
 			Database:       database,
 			CA:             *ca,
 			CACertificates: caCertificates,
