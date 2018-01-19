@@ -38,6 +38,7 @@ import (
 	"github.com/urfave/cli"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -118,7 +119,9 @@ func main() {
 		},
 	}
 
-	app.Run(os.Args)
+    if err := app.Run(os.Args); err != nil {
+        panic(err)
+    }
 }
 
 type LocalhostAdminEmailACL struct {
