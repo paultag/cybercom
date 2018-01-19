@@ -117,9 +117,10 @@ func (entity Entity) GetCertificate(db *gorm.DB) (*Certificate, error) {
 
 func GetRevokedCertificates(db *gorm.DB) ([]Certificate, error) {
 	certs := []Certificate{}
+	now := time.Now()
 
 	if err := db.Order("not_after ASC").Where(
-		"entities.state = ? AND certificates.not_after > now()", EntityStateRevoked,
+		"entities.state = ? AND certificates.not_after > ?", EntityStateRevoked, now,
 	).Joins(
 		"LEFT JOIN entities ON entities.hash = certificates.entity_hash",
 	).Find(&certs).Error; err != nil {
