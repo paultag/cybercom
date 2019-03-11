@@ -119,9 +119,9 @@ func main() {
 		},
 	}
 
-    if err := app.Run(os.Args); err != nil {
-        panic(err)
-    }
+	if err := app.Run(os.Args); err != nil {
+		panic(err)
+	}
 }
 
 type LocalhostAdminEmailACL struct {

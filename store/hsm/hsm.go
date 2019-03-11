@@ -26,7 +26,9 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/big"
+	"os"
 
 	"pault.ag/go/cybercom/store"
 
@@ -57,6 +59,13 @@ type Config struct {
 	// for PIV devices, one option for this might be
 	// "Certificate for PIV Authentication"
 	CertificateLabel string
+
+	// File contianing the DER of the x.509 Certificate, for cases where
+	// the PKCS11 device can't store the Certificate with the key.
+	//
+	// If this is set to anything other than empty-string, this will be taken
+	// over CertificateLabel.
+	CertificateFile string
 
 	// Private key material backing the x.509 Certificate indicated by
 	// CertificateLabel, one option for this might be "PIV AUTH key"
@@ -269,22 +278,53 @@ func (s Store) getAttribute(locate, attributes []*pkcs11.Attribute) (*pkcs11.Att
 // Query the underlying HSM Store for the x509 Certificate we're interested in,
 // and return a Go x509.Certificate.
 func (s Store) Certificate() (*x509.Certificate, error) {
-	certAttribute, err := s.getAttribute(
-		s.config.GetCertificateTemplate(),
-		[]*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, nil)},
-	)
-	if err != nil {
-		return nil, err
+	var fsCert bool = len(s.config.CertificateFile) != 0
+	var certDer []byte = nil
+
+	if fsCert {
+		fd, err := os.Open(s.config.CertificateFile)
+		if err != nil {
+			return nil, err
+		}
+		defer fd.Close()
+		certDer, err = ioutil.ReadAll(fd)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		certAttribute, err := s.getAttribute(
+			s.config.GetCertificateTemplate(),
+			[]*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, nil)},
+		)
+		if err != nil {
+			return nil, err
+		}
+		certDer = certAttribute.Value
 	}
-	return x509.ParseCertificate(certAttribute.Value)
+	return x509.ParseCertificate(certDer)
 }
 
 // XXX: UNIMPLEMENTED AND WHAT WAIT DID HOW DID I WHAT THE
 func (s Store) Update(certificate x509.Certificate) error {
-	return s.updateAttribute(
-		s.config.GetCertificateTemplate(),
-		[]*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, certificate.Raw)},
-	)
+	var fsCert bool = len(s.config.CertificateFile) != 0
+
+	if fsCert {
+		fd, err := os.Create(s.config.CertificateFile)
+		if err != nil {
+			return err
+		}
+		defer fd.Close()
+		_, err = fd.Write(certificate.Raw)
+		if err != nil {
+			return err
+		}
+	} else {
+		return s.updateAttribute(
+			s.config.GetCertificateTemplate(),
+			[]*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, certificate.Raw)},
+		)
+	}
+	return nil
 }
 
 func (s Store) updateAttribute(search, attributes []*pkcs11.Attribute) error {
