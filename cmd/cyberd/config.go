@@ -120,6 +120,7 @@ func (h YubikeyConfig) GetSlot() (*yubikey.Store, error) {
 type HSMConfig struct {
 	Module           string `json:"module"`
 	CertificateLabel string `json:"certificate_label"`
+	CertificateFile  string `json:"certificate_file"`
 	PrivateKeyLabel  string `json:"private_key_label"`
 	TokenLabel       string `json:"token_label"`
 	PIN              string `json:"pin"`
@@ -132,6 +133,7 @@ func (h HSMConfig) Config() (*hsm.Config, error) {
 	config := hsm.Config{
 		Module:           h.Module,
 		CertificateLabel: h.CertificateLabel,
+		CertificateFile:  h.CertificateFile,
 		PrivateKeyLabel:  h.PrivateKeyLabel,
 		TokenLabel:       h.TokenLabel,
 	}
